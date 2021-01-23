@@ -53,7 +53,8 @@ sharedkeyatB=(pow(ka,b))%p
 # print(sharedkeyatB)
 
 #  encrypting at alice side
-
+print ("share key at a: ", sharedkeyatA)
+print ("shared keya t b : ", sharedkeyatB)
 
 # repr(sharedkeyatA).encode('utf-8')
 theHash = hashlib.sha256(str(sharedkeyatA).encode("utf-8")).hexdigest()
@@ -61,16 +62,16 @@ theHash = hashlib.sha256(str(sharedkeyatA).encode("utf-8")).hexdigest()
 key = theHash[0:16]
 # (theHash.is_triple())
 # print(key)
-cipher = DES3.new(key, DES3.MODE_CFB)
-plaintext = b'Hello india'
-# while(len(plaintext)%8!=0):
-# 	plaintext+=' '
-# plaintext.encode()
+cipher = DES3.new(key, DES3.MODE_ECB)
+plaintext = 'Hello india'
+while(len(plaintext)%8!=0):
+	plaintext+=' '
+plaintext = str.encode(plaintext)
 
 # bytes(plaintext, 'utf-8') 
 print(type(plaintext))
 print(len(plaintext))
-msg = cipher.iv+ cipher.encrypt((plaintext))
+msg = cipher.encrypt((plaintext))
 print((msg))
 
 
@@ -79,7 +80,7 @@ theHash1 = hashlib.sha256(str(sharedkeyatB).encode("utf-8")).hexdigest()
 
 key1 = theHash1[0:16]
 # print(key1)
-cipher1 = DES3.new(key1, DES3.MODE_CFB)
+cipher1 = DES3.new(key1, DES3.MODE_ECB)
 plaintext1 = msg
 print(plaintext1)
 msg1 = cipher1.decrypt((plaintext1))
@@ -87,6 +88,6 @@ msg1 = cipher1.decrypt((plaintext1))
 # .decode(iso8859-1)
 # msg1.decode('latin-1')
 # msg1=msg1[:-ord(msg1[len(msg1)-1:])]
-print((msg1[:]))
+print((msg1.strip()))
 
 # errors='ignore'

@@ -4,12 +4,12 @@ import sys
 import random
 from _thread import *
 
-
-
 client_user_name={}
 clients_login={}
 client_ports_as_server={}
-
+clients_client_port_username = {}
+groupnameList = []
+group_members = {}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
@@ -20,82 +20,62 @@ server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 
 IP_address = str(sys.argv[1]) 
-
 Port = int(sys.argv[2])
-
 server.bind((IP_address, Port)) 
-
 server.listen(100) 
-
 list_of_clients = [] 
 
 
 def clientthread(conn, addr): 
 
-	print("connection from ",addr[1])
-	
+	print("connection from ",addr[1]) #clients port
+	clients_port_as_client = addr[1]
 	message = conn.recv(2048)
 	message=message.decode()
 	print("details of client",message)
 	portdetails=message.split('-')
 	client_server_port=portdetails[1]
-	conn.send("Welcome to this chatroom!".encode()) 
-	# print(type(addr))
+
+
 	while True: 
 
-		
-		message = conn.recv(2048)
-		message=message.decode()
-		
-		message=message[0:-1]
+		if clients_port_as_client in clients_client_port_username:
+			clients_username = clients_client_port_username[clients_port_as_client]
+		else:
+			clients_username = ""
 
-		print(message)
-		# processed_input=[]
+		message = conn.recv(2048).decode()
 		processed_input=message.split()
-		# print("list ",processed_input)
-		if(not processed_input):
-			print("WRONG COMMAND")
-		elif(processed_input[0]=='signup'):
-			print("do sign up")
-			conn.send("enter user id and password".encode())
-			message = conn.recv(2048)
-			message=message.decode()
-		
-			message=message[0:-1]
-			print(message)
-			credentials=message.split()
-			username=credentials[0]
-			password=credentials[1]
-			# global client_user_name
+
+		if(processed_input[0]=='signup'):
+			username = processed_input[1]
+			pwd = processed_input[2]
 			if(username in client_user_name):
-				print("user name already in use")
-				conn.send("user name already in use".encode())
+				msgtToClient = "user name already in use"
 			else:
-				# global client_user_name
-				# client_user_name.update(dict(username=password))
-				client_user_name[username]=password
-				# client_user_name[username]=password
-				# clients_login.update(dict(username=0))
+				client_user_name[username]=pwd
 				clients_login[username]=0
-				# client_ports_as_server.update(dict(username=client_server_port))
 				client_ports_as_server[username]=client_server_port
-				# clients_login[username]=0
+				clients_client_port_username[clients_port_as_client]=username
+				msgtToClient = username + " added"
+			
+			conn.send(msgtToClient.encode())
 
 		elif(processed_input[0]=="signin"):
-			message = conn.recv(2048)
-			message=message.decode()
-			message=message[0:-1]
-			print("dict is ",client_user_name)
-			credentials=message.split()
-			username=credentials[0]
-			password=credentials[1]
-			# print(credentials)
-			if(client_user_name[username]==password):
-				clients_login[username]=1
-				# client_ports_as_server[username]=client_server_port
-				print("loggin")
+			username = processed_input[1]
+			pwd = processed_input[2]
+            
+			if(username not in client_user_name):
+				msgtToClient = username + " not signed up"
 			else:
-				print("Wrong password")
+				if clients_login[username] == 1:
+					msgtToClient = username + " already signed in"
+				elif client_user_name[username] != pwd:
+					msgtToClient = " pwd does not match"
+				else:
+					clients_login[username] = 1
+					msgtToClient = username + " logged in"
+			conn.send(msgtToClient.encode())
 
 
 
@@ -105,18 +85,56 @@ def clientthread(conn, addr):
 			reciever_port_as_server=client_ports_as_server[reciever_user_name]
 			conn.send(reciever_port_as_server.encode())
 			# start_new_thread(connect_to_client,())
-		elif(processed_input[0]=="LIST"):
-			print("JOIN comm")
 
 
-		elif(processed_input[0]=="JOIN"):
-			print("JOIN comm")
+		elif(processed_input[0]=="list"):
+			if clients_username=="":
+				msgtToClient = "first signup to create group:"
+			elif clients_login[clients_username] != 1:
+				msgtToClient = "first login to create group:"
+			else:
+				msgtToClient = ""
+				for groupname in groupnameList:
+					msgtToClient += (groupname + "\n")
+
+			conn.send(msgtToClient.encode())
 
 
-		elif(processed_input[0]=="CREATE"):
-			print("JOIN comm")
-		else:
-			print("WRONG COMMAND")
+		elif(processed_input[0]=="join"):
+			groupname = processed_input[1]
+			if clients_username=="":
+				msgtToClient = "first signup to create group"
+			elif clients_login[clients_username] != 1:
+				msgtToClient = "first login to create group"
+			elif groupname not in groupnameList:
+				msgtToClient = "group by the name : " + groupname + " does not exist"
+			else:
+				members = group_members[groupname]
+
+				if clients_username in members:
+					msgtToClient = " you are already part of this group"
+				else:
+					group_members[groupname].append(clients_username)
+					msgtToClient = "group joined"
+
+			conn.send(msgtToClient.encode())
+
+		elif(processed_input[0]=="create"):
+			groupname = processed_input[1]
+			print ("username : ", clients_client_port_username[clients_port_as_client])
+			if clients_username=="":
+				msgtToClient = "first signup to create group"
+			elif clients_login[clients_username] != 1:
+				msgtToClient = "first login to create group"
+			elif groupname in groupnameList:
+				msgtToClient = "group by the name : " + groupname + " already exist"
+			else:
+				groupnameList.append(groupname)
+				group_members[groupname] = [clients_username]
+				msgtToClient = "group created"
+
+			conn.send(msgtToClient.encode())
+
 		
 		# conn.send("Welcome to this chatroom!".encode()) 
 		sys.stdout.flush() 
@@ -166,9 +184,3 @@ the program"""
 def remove(connection): 
 	if connection in list_of_clients: 
 		list_of_clients.remove(connection) 
-
-
-
-
-
-

@@ -31,6 +31,7 @@ def clientthread(conn, addr):
     # recieve key
     ka = conn.recv(1024)
     ka = ka.decode()
+    # conn.send("hello".encode())
     print("ka recievd ",ka)
     m_l=len(ka)
     mode=int(ka[m_l-1])
@@ -45,10 +46,13 @@ def clientthread(conn, addr):
 
     print("connection from ", addr[1])
 
-    message = conn.recv(1024)
+    
     if(mode==1):
-    	print("inside file mode")
-    	message = message.decode()
+    	conn.send("hello".encode())
+    	message = conn.recv(1024)
+    	con.send("hello".encode())
+    	print("inside file mode messag erecieved ",message)
+    	# message = message.decode()
     	message_list = message.split()
     	print("first message recievd in file ", message)
     	if(len(message_list)>3 and  message_list[0] == "send" and message_list[2] == "file"):
@@ -72,6 +76,8 @@ def clientthread(conn, addr):
     	# data = cipher1.decrypt((message_list[2]))
     	# print("details of client", data)
     else:
+    	message = conn.recv(1024)
+    	print("recievd encrypted is ",message)
     	data = cipher1.decrypt((message))
     	print("message recieved is ", str(data).strip())
 
@@ -132,11 +138,10 @@ def connect_to_peer(message, text,key):
 
 
 def connect_to_peer_send_file(message, filename, key):
-    ip = str(clientIP[0])+str('.')+str(clientIP[1]) + \
-        str('.')+str(clientIP[2])+str('.')+str(clientIP[3])
     port = int(message)
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.connect((ip, port))
+    server.connect((IP_address, port))
+    # server.connect((ip, port))
     file_to_send = filename
     first_message = "send user file "+filename
     print("first_message from sender ", first_message)
@@ -147,13 +152,16 @@ def connect_to_peer_send_file(message, filename, key):
 
     #  send key
     key=str(key)+"---1"
+
+    print("key send ",key)
     server.send((key).encode())
     sharedkeyatA = (pow(int(kb), a)) % p
     sharedkeyatA = str(sharedkeyatA)+str(2020202009)
     sharedkeyatA = int(sharedkeyatA)
-
+    server.recv(100)
     server.send(first_message.encode())
-    # server.recv(1024)
+    
+    server.recv(100)
 
     theHash = hashlib.sha256(str(sharedkeyatA).encode("utf-8")).hexdigest()
     thekey = theHash[0:16]
@@ -227,14 +235,15 @@ while True:
         print(messageFromServer.decode())
 		
 
-    elif(len(processed_input)>3 and processed_input[0] == "send" and processed_input[2] == "file"):
-        message = server.recv(1024)
-        message = message.decode()
-        print("inside file transfer other client details ", message)
-        # file_name=processed_input[2]
-        # file_name=dir_path+"/"+file_name
-        # send_file=open(filename,'r')
-        start_new_thread(connect_to_peer_send_file,
+    elif(len(processed_input)>2 and processed_input[0] == "send" and processed_input[2] == "file"):
+    	recvUsername = processed_input[1]
+    	messageToServer = "send " +  recvUsername
+    	server.send(messageToServer.encode())
+    	messageFromServer = server.recv(1024)
+    	# print("recv port : ", messageFromServer.decode())
+    	message = messageFromServer.decode()
+    	print("inside file transfer other client details ", message)
+    	start_new_thread(connect_to_peer_send_file,
                          (message, processed_input[3], ka))
         # while True:
         # 	data=send_file.read(1024)

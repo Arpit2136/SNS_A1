@@ -17,7 +17,7 @@ p = 23
 g = 9
 
 client_port_as_server = random.randrange(60000, 62000)
-
+IP_address = str(sys.argv[1])
 
 def clientthread(conn, addr):
     # key generation
@@ -92,11 +92,9 @@ def client_as_server():
 
 
 def connect_to_peer(message, text):
-    ip = str(clientIP[0])+str('.')+str(clientIP[1]) + \
-        str('.')+str(clientIP[2])+str('.')+str(clientIP[3])
     port = int(message)
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.connect((ip, port))
+    server.connect((IP_address, port))
     server.send(text.encode())
     print("message send")
 
@@ -211,14 +209,19 @@ while True:
         # 		break
 
     elif(processed_input[0] == "send"):
-        message = server.recv(1024)
-        message = message.decode()
-        print("other client details ", message)
+        recvUsername = processed_input[1]
+        messageToServer = "send " +  recvUsername
+        server.send(messageToServer.encode())
+        messageFromServer = server.recv(1024)
+        print("recv port : ", messageFromServer.decode())
+
         text = ""
         for i in range(2, len(processed_input)):
-            text += "" + processed_input[i]
+            text += processed_input[i]
 
-        start_new_thread(connect_to_peer, (message, text))
+        print ("msg to send : ", text)
+
+        start_new_thread(connect_to_peer, (messageFromServer, text))
 
     elif processed_input[0]=="create":
         if len(processed_input) != 2:

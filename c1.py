@@ -31,6 +31,10 @@ def clientthread(conn, addr):
     # recieve key
     ka = conn.recv(1024)
     ka = ka.decode()
+    print("ka recievd ",ka)
+    m_l=len(ka)
+    mode=int(ka[m_l-1])
+    ka=ka[:m_l-4]
 
     sharedkeyatB = (pow(int(ka), b)) % p
     sharedkeyatB = str(sharedkeyatB)+str(2020202009)
@@ -42,31 +46,35 @@ def clientthread(conn, addr):
     print("connection from ", addr[1])
 
     message = conn.recv(1024)
+    if(mode==1):
+    	print("inside file mode")
+    	message = message.decode()
+    	message_list = message.split()
+    	print("first message recievd in file ", message)
+    	if(len(message_list)>3 and  message_list[0] == "send" and message_list[2] == "file"):
+    		print("inside file recieved")
+    		dir_path = os.path.dirname(os.path.realpath(__file__))
+    		filename = message_list[3]
+    		new_file_path = dir_path+"/"+filename
+    		file = open(new_file_path, 'wb')
+    		while True:
+    			data = conn.recv(1024)
+    			data = cipher1.decrypt((data))
+    			data = data
+    			print(data)
+    			if not data:
+    				break
+    			file.write(data)
 
-    message = message.decode()
-    message_list = message.split()
-    print("first message recievd in file ", message)
-    # conn.send("Hello".encode())
-    if(message_list[0] == "send" and message_list[2] == "file"):
-        print("inside file recieved")
-        # conn.send("hello".encode())
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        # print(dir_path)
-        filename = message_list[3]
-        new_file_path = dir_path+"/"+filename
-        file = open(new_file_path, 'wb')
-        while True:
-            data = conn.recv(1024)
-            data = cipher1.decrypt((data))
-            # conn.send("hello".encode())
-            data = data
-            print(data)
-            if not data:
-                break
-            file.write(data)
-        file.close()
+    		file.close()
+    	else:
+    		print("gibberish")
+    	# data = cipher1.decrypt((message_list[2]))
+    	# print("details of client", data)
     else:
-        print("details of client", message)
+    	data = cipher1.decrypt((message))
+    	print("message recieved is ", str(data).strip())
+
     sys.exit()
     # portdetails=message.split('-')
     # client_server_port=portdetails[1]
@@ -91,11 +99,35 @@ def client_as_server():
     server.close()
 
 
-def connect_to_peer(message, text):
+def connect_to_peer(message, text,key):
     port = int(message)
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((IP_address, port))
-    server.send(text.encode())
+    
+
+
+    # recv key
+    kb = server.recv(1024)
+    kb = kb.decode()
+
+    #  send key
+    key=str(key)+"---0"
+    print("key sendding ",key)
+    server.send((key).encode())
+    sharedkeyatA = (pow(int(kb), a)) % p
+    sharedkeyatA = str(sharedkeyatA)+str(2020202009)
+    sharedkeyatA = int(sharedkeyatA)
+
+    # server.send(first_message.encode())
+    # server.recv(1024)
+
+    theHash = hashlib.sha256(str(sharedkeyatA).encode("utf-8")).hexdigest()
+    thekey = theHash[0:16]
+    cipher = DES3.new(thekey, DES3.MODE_ECB)
+    while(len(text)%8!=0):
+    	text+=" "
+    text = cipher.encrypt((str.encode(text)))
+    server.send(text)
     print("message send")
 
 
@@ -114,7 +146,8 @@ def connect_to_peer_send_file(message, filename, key):
     kb = kb.decode()
 
     #  send key
-    server.send(str(key).encode())
+    key=str(key)+"---1"
+    server.send((key).encode())
     sharedkeyatA = (pow(int(kb), a)) % p
     sharedkeyatA = str(sharedkeyatA)+str(2020202009)
     sharedkeyatA = int(sharedkeyatA)
@@ -131,8 +164,8 @@ def connect_to_peer_send_file(message, filename, key):
     send_file = open(file_to_send, 'rb')
     while True:
         data = send_file.read(1024)
-        # if(len(data)%8!=0):
-        # 	data+=
+        if(len(data)%8!=0):
+        	data+=" "
         data = cipher.encrypt((data))
         print(data)
         if not data:
@@ -194,7 +227,7 @@ while True:
         print(messageFromServer.decode())
 		
 
-    elif(processed_input[0] == "send" and processed_input[2] == "file"):
+    elif(len(processed_input)>3 and processed_input[0] == "send" and processed_input[2] == "file"):
         message = server.recv(1024)
         message = message.decode()
         print("inside file transfer other client details ", message)
@@ -221,7 +254,7 @@ while True:
 
         print ("msg to send : ", text)
 
-        start_new_thread(connect_to_peer, (messageFromServer, text))
+        start_new_thread(connect_to_peer, (messageFromServer, text,ka))
 
     elif processed_input[0]=="create":
         if len(processed_input) != 2:

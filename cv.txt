@@ -1,0 +1,44 @@
+Collection of video resources for CV present here: https://github.com/kuzand/Computer-Vision-Video-Lectures
+
+================================================================================================================================================================================================
+
+References: 
+[1] Computer Vision CAP5415 (UCF), Dr. Mubarak Shah (https://www.crcv.ucf.edu/courses/cap5415-fall-2014/)
+
+[2] Introduction to Computer Vision CS-6476 (Georgia Tech) (https://omscs.gatech.edu/cs-6476-computer-vision-course-videos)
+
+[3] Computer Vision (IIT Kanpur), Prof. Jayanta Mukhopadhyay (https://nptel.ac.in/courses/106/105/106105216/)
+
+================================================================================================================================================================================================
+
+Computer Vision Course Spring 2021:
+
+Topic-1 : Relationship between computer vision, graphics and Image processing:
+(NULL)
+
+Topic-2 : Camera model: Imaging process 3D to 2D projection and loss of information, calibrated and un -calibrated vision systems:
+[1] Lecture 12
+[2] 3A-L1 to 3C-L3
+[3] Week 2, 3
+
+Topic-3 : Multiple view geometry and imaging systems. Algebraic constraints, reconstruction, view synthesis:
+[1] Lecture 13
+[2] 3D-L1 to 3D-l4
+[3] Week 4, 5
+
+Topic-4 : Recognition of objects from appearance, shape, partial view, occlusion, etc:
+[2] 8A-L1 to 8C-L4
+[3] Week 6
+
+Topic-5 : Analysis of video, motion and recognizing dynamic activities:
+[1] Lecture 7, 8, 9, 10
+[2] 6A-L1 to 6B-L4. Tracking is present in 7A-L1 to 7D-L1
+
+================================================================================================================================================================================================
+
+Notes:
+1. MAKE NOTES! They are useful later when you can't recall stuff and want to refer back to something. Its difficult to get some of the concepts at first. So you definitly will need to go back to your notes.
+2. If you are going to refer multiple courses, then try to cover topic-wise rather than course-wise. But doing it this way can also get a bit tough as its easy to maintain the flow when doing just one course. But then, nothing comes easy.
+3. Can do Week 2, 3, 4, 5 of [3] in one go for topics 2 and 3. Maintains a good flow for the mathematical part.
+4. Other courses from the repo, which are not included here also cover these topics. Its upto you if you want to go through them. Courses can't be compared. Each one offers different perspective.
+5. I am not sure what the professor intends to cover in topic-1.

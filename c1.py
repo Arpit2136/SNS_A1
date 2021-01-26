@@ -46,15 +46,17 @@ def clientthread(conn, addr):
 
     print("connection from ", addr[1])
 
-    
+    print("inside while mode ",mode)
     if(mode==1):
+    	print("inside while mode ",mode)
     	conn.send("hello".encode())
     	message = conn.recv(1024)
-    	con.send("hello".encode())
+    	print("after recieve",message)
+    	conn.send("hello".encode())
     	print("inside file mode messag erecieved ",message)
     	# message = message.decode()
-    	message_list = message.split()
-    	print("first message recievd in file ", message)
+    	message_list = message.decode().split()
+    	print("first message recievd in file ", message_list)
     	if(len(message_list)>3 and  message_list[0] == "send" and message_list[2] == "file"):
     		print("inside file recieved")
     		dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -79,7 +81,7 @@ def clientthread(conn, addr):
     	message = conn.recv(1024)
     	print("recievd encrypted is ",message)
     	data = cipher1.decrypt((message))
-    	print("message recieved is ", str(data).strip())
+    	print("message recieved is ", str(data.decode("utf-8")).strip())
 
     sys.exit()
     # portdetails=message.split('-')
@@ -154,14 +156,16 @@ def connect_to_peer_send_file(message, filename, key):
     key=str(key)+"---1"
 
     print("key send ",key)
+
+
     server.send((key).encode())
     sharedkeyatA = (pow(int(kb), a)) % p
     sharedkeyatA = str(sharedkeyatA)+str(2020202009)
     sharedkeyatA = int(sharedkeyatA)
-    server.recv(100)
+    server.recv(1024)
     server.send(first_message.encode())
-    
-    server.recv(100)
+    print("after key send")
+    server.recv(1024)
 
     theHash = hashlib.sha256(str(sharedkeyatA).encode("utf-8")).hexdigest()
     thekey = theHash[0:16]
@@ -169,16 +173,34 @@ def connect_to_peer_send_file(message, filename, key):
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     file_to_send = dir_path+"/"+file_to_send
-    send_file = open(file_to_send, 'rb')
-    while True:
-        data = send_file.read(1024)
-        if(len(data)%8!=0):
-        	data+=" "
-        data = cipher.encrypt((data))
-        print(data)
-        if not data:
-            break
-        server.send(data)
+    file_list=file_to_send.split('.')
+    if(file_list[1]!="txt"):
+    	send_file = open(file_to_send, 'rb')
+    	print("before while")
+    	while True:
+        	data = send_file.read(1024)
+        	# while(len(data)%8!=0):
+        	# 	data+=" "
+        	data = cipher.encrypt(((data)))
+        	print(data)
+        	if not data:
+        		break
+        	server.send(data)
+
+
+
+    else:
+    	send_file = open(file_to_send, 'r')
+    	print("before while")
+    	while True:
+        	data = send_file.read(1024)
+        	while(len(data)%8!=0):
+        		data+=" "
+        	data = cipher.encrypt((str.encode(data)))
+        	print(data)
+        	if not data:
+        		break
+        	server.send(data)
         # server.recv(1024)
     send_file.close()
 
@@ -259,7 +281,7 @@ while True:
 
         text = ""
         for i in range(2, len(processed_input)):
-            text += processed_input[i]
+            text += processed_input[i]+" "
 
         print ("msg to send : ", text)
 

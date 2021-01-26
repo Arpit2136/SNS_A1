@@ -10,6 +10,7 @@ client_ports_as_server={}
 clients_client_port_username = {}
 groupnameList = []
 group_members = {}
+gruopname_key = {}
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
@@ -45,6 +46,7 @@ def clientthread(conn, addr):
 			clients_username = ""
 
 		message = conn.recv(2048).decode()
+		print ("message from client : ", message)
 		processed_input=message.split()
 
 		if(processed_input[0]=='signup'):
@@ -78,13 +80,37 @@ def clientthread(conn, addr):
 			conn.send(msgtToClient.encode())
 
 
+		elif(processed_input[0]=='send' and processed_input[1]=="group"):
+			print("SEND group COMMAND RECIEVED")
+			groupname=processed_input[2]
+			if clients_username=="":
+				msgtToClient = "first signup to start chatting"
+			elif clients_login[clients_username] != 1:
+					msgtToClient = "first login to start chatting"
+			elif groupname not in groupnameList:
+				msgtToClient = "group by the name : " + groupname + " does not exist"
+			else:
+				members = group_members[groupname]
+				msgtToClient=gruopname_key[groupname]
+				for member in members:
+					if(member != clients_username):
+							msgtToClient += " "+str(client_ports_as_server[member])
+
+			conn.send(msgtToClient.encode())
+
 
 		elif(processed_input[0]=='send'):
 			print("SEND COMMAND RECIEVED")
+			if clients_username=="":
+				msgtToClient = "first signup to start chatting"
+			elif clients_login[clients_username] != 1:
+				msgtToClient = "first login to start chatting"
 			reciever_user_name=processed_input[1]
-			reciever_port_as_server=client_ports_as_server[reciever_user_name]
-			conn.send(reciever_port_as_server.encode())
-			# start_new_thread(connect_to_client,())
+			if reciever_user_name not in client_user_name:
+				msgtToClient = reciever_user_name + " does not exist"
+			else:
+				msgtToClient=client_ports_as_server[reciever_user_name]
+			conn.send(msgtToClient.encode())
 
 
 		elif(processed_input[0]=="list"):
@@ -121,6 +147,7 @@ def clientthread(conn, addr):
 
 		elif(processed_input[0]=="create"):
 			groupname = processed_input[1]
+			groupkey = processed_input[2]
 			print ("username : ", clients_client_port_username[clients_port_as_client])
 			if clients_username=="":
 				msgtToClient = "first signup to create group"
@@ -131,9 +158,19 @@ def clientthread(conn, addr):
 			else:
 				groupnameList.append(groupname)
 				group_members[groupname] = [clients_username]
+				gruopname_key[groupname] = groupkey
 				msgtToClient = "group created"
 
 			conn.send(msgtToClient.encode())
+
+		elif processed_input[0]=="key":
+
+			grpname = processed_input[1]
+
+			key = gruopname_key[grpname]
+			print ("grp key required : ", key)
+			conn.send(key.encode())
+
 
 		
 		# conn.send("Welcome to this chatroom!".encode()) 

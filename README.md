@@ -24,17 +24,17 @@ User can list all the groups
 
 ##### 5)JOIN
 A user can join a specified group using this command 
-<join groupname>
+join groupname
 
 
 ###### group 
 
-<send group groupname text>
-<send group groupname file filename>
+send group groupname text
+send group groupname file filename
 
 ###### p2p
-<send username text>
-<send username file filename>
+send username text
+send username file filename
  
-
+ 
   

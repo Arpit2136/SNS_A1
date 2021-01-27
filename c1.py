@@ -130,13 +130,14 @@ def clientthread(conn, addr):
                 new_file_path = dir_path+"/"+filename
                 file = open(new_file_path, 'wb')
                 while True:
-                    data = conn.recv(1024)
-                    data = cipher1.decrypt((data))
-                    data = data
-                    # print(data)
-                    if not data:
-                        break
-                    file.write(data)
+                	try:
+                		data = conn.recv(1024)
+                		data = cipher1.decrypt((data))
+                		if not data:
+                			break
+                		file.write(data)
+                	except Exception :
+                		print ("all ok")
 
                 file.close()
             else:
@@ -147,7 +148,7 @@ def clientthread(conn, addr):
             message = conn.recv(1024)
             # print("recievd encrypted is ",message)
             data = cipher1.decrypt((message))
-            print( str(data.decode("utf-8")).strip())
+            print(str(data.decode("utf-8")).strip())
 
 
     sys.exit()
@@ -162,12 +163,12 @@ def client_as_server():
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind((IP_address, client_port_as_server))
     server.listen(100)
-    print("started as server also")
+    # print("started as server also")
 
     while True:
         conn, addr = server.accept()
         # list_of_clients.append(addr[1])
-        print(addr[0] + " connected")
+        # print(addr[0] + " connected")
         start_new_thread(clientthread, (conn, addr))
 
     # conn.close()
@@ -190,7 +191,7 @@ def connect_to_peer(message, text,key, mode):
 
         #  send key
         key=str(key)+"---0"
-        print("key sendding ",key)
+        # print("key sendding ",key)
         server.send((key).encode())
 
         sharedkeyatA = (pow(int(kb), a)) % p
@@ -211,13 +212,13 @@ def connect_to_peer(message, text,key, mode):
         print("message send")
 
     else:
-    	print ("in group connect to peer : ")
+    	# print ("in group connect to peer : ")
     	port = int(message)
     	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     	server.connect((IP_address, port))
     	grpname = mode
     	msg_to_peer = "group chat " + grpname;
-    	print("send group caht" ,msg_to_peer)
+    	# print("send group caht" ,msg_to_peer)
     	server.send(msg_to_peer.encode());
     	cipher = DES3.new(key, DES3.MODE_ECB)
     	server.recv(1024)
@@ -242,7 +243,7 @@ def connect_to_peer_send_file(message, filename, key, mode):
         # server.connect((ip, port))
         file_to_send = filename
         first_message = "send user file "+filename
-        print("first_message from sender ", first_message)
+        # print("first_message from sender ", first_message)
 
         # recv key
         kb = server.recv(1024)
@@ -251,7 +252,7 @@ def connect_to_peer_send_file(message, filename, key, mode):
         #  send key
         key=str(key)+"---1"
 
-        print("key send ",key)
+        # print("key send ",key)
 
 
         server.send((key).encode())
@@ -260,7 +261,7 @@ def connect_to_peer_send_file(message, filename, key, mode):
         sharedkeyatA = int(sharedkeyatA)
         server.recv(1024)
         server.send(first_message.encode())
-        print("after key send")
+        # print("after key send")
         server.recv(1024)
 
         theHash = hashlib.sha256(str(sharedkeyatA).encode("utf-8")).hexdigest()
@@ -272,7 +273,7 @@ def connect_to_peer_send_file(message, filename, key, mode):
         file_list=file_to_send.split('.')
         if(file_list[1]!="txt"):
         	send_file = open(file_to_send, 'rb')
-        	print("before while")
+        	# print("before while")
         	while True:
         		data = send_file.read(1024)
         		data_array=bytearray(data)
@@ -280,7 +281,7 @@ def connect_to_peer_send_file(message, filename, key, mode):
         			data_array.append(0)
 
         		data = cipher.encrypt(((data_array)))
-        		print(data)
+        		# print(data)
         		if not data:
         			break
         		server.send(data)
@@ -289,34 +290,34 @@ def connect_to_peer_send_file(message, filename, key, mode):
 
         else:
         	send_file = open(file_to_send, 'r')
-        	print("before while")
+        	# print("before while")
         	while True:
         		data = send_file.read(1024)
         		while(len(data)%8!=0):
         			data+=" "
         		data = cipher.encrypt((str.encode(data)))
-        		print(data)
+        		# print(data)
         		if not data:
         			break
         		server.send(data)
             # server.recv(1024)
 
     else:
-    	print (" in connect_to_peer_send_file")
+    	# print (" in connect_to_peer_send_file")
     	port = int(message)
     	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     	server.connect((IP_address, port))
     	grpname = mode
     	msg_to_peer = "group file " + grpname;
-    	print ("msg tp per : ", msg_to_peer)
+    	# print ("msg tp per : ", msg_to_peer)
     	server.send(msg_to_peer.encode());
     	# server.connect((ip, port))
     	file_to_send = filename
     	first_message = "send user file "+filename
-    	print("first_message from sender ", first_message)
+    	# print("fi/rst_message from sender ", first_message)
     	server.recv(1024)
     	server.send(first_message.encode())
-    	print("after key send")
+    	# print("after key send")
     	server.recv(1024)
     	cipher = DES3.new(key, DES3.MODE_ECB)
     	dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -325,26 +326,26 @@ def connect_to_peer_send_file(message, filename, key, mode):
     	
     	if(file_list[1]!="txt"):
     		send_file = open(file_to_send, 'rb')
-    		print("before while")
+    		# print("before while")
     		while True:
     			data = send_file.read(1024)
     			data_array=bytearray(data)
     			while(len(data_array)%8!=0):
     				data_array.append(0)
     			data = cipher.encrypt(((data_array)))
-    			print(data)
+    			# print(data)
     			if not data:
     				break
     			server.send(data)
     	else:
     		send_file = open(file_to_send, 'r')
-    		print("before while")
+    		# print("before while")
     		while True:
     			data = send_file.read(1024)
     			while(len(data)%8!=0):
     				data+=" "
     			data = cipher.encrypt((str.encode(data)))
-    			print(data)
+    			# print(data)
     			if not data:
     				break
     			server.send(data)
@@ -394,7 +395,7 @@ while True:
         server.send(message.encode())
 
         username = processed_input[1]
-        print("username ",username)
+        # print("username ",username)
         messageFromServer = server.recv(1024)
         print(messageFromServer.decode())
 
@@ -419,7 +420,7 @@ while True:
     		continue
     	# print("recv port : ", messageFromServer.decode())
     	message = messageFromServer.decode()
-    	print("inside file transfer other client details ", message)
+    	# print("inside file transfer other client details ", message)
     	start_new_thread(connect_to_peer_send_file,
                          (message, processed_input[3], ka,"p2p"))
         # while True:
@@ -431,54 +432,55 @@ while True:
         grpName = processed_input[2]
         messageToServer = "send group " +  grpName
         server.send(messageToServer.encode())
-        messageFromServer = server.recv(1024)
-        print("key and recv port : ", messageFromServer.decode())
+        messageFromServer = server.recv(1024).decode()
+        # print("key and recv port : ", messageFromServer.decode())
         message_split=messageFromServer.split()
         if(message_split[0]=="error"):
         	print(messageFromServer)
         	sys.stdout.flush()
         	continue
         list_of_ports = []
-        messageFromServer = messageFromServer.decode().split()
+        messageFromServer = messageFromServer.split()
         groupkey = messageFromServer[0]
         for i in range(1,len(messageFromServer)):
             list_of_ports.append(int(messageFromServer[i]))
 
-        print ("list of ports : ", list_of_ports)
-        print("username in send group  ",username)
-        text = "msg received from " + username
+        # print ("list of ports : ", list_of_ports)
+        # print("username in send group  ",username)
+        text = "<" + username +"> "
         for i in range(3, len(processed_input)):
             text += " " + processed_input[i]
 
 
-        print ("msg to send : ", text)
+        # print ("msg to send : ", text)
         if processed_input[3]=="file":
-        	print ("in group send file ")
+        	# print ("in group send file ")
         	filename = processed_input[4]
         	for port in list_of_ports:
         		start_new_thread(connect_to_peer_send_file, (port, filename, groupkey, grpName))
-        for port in list_of_ports:
-        	start_new_thread(connect_to_peer, (port, text, groupkey, grpName))
+        else:
+        	for port in list_of_ports:
+        		start_new_thread(connect_to_peer, (port, text, groupkey, grpName))
             # start_new_thread(connect_to_peer, (port, text, groupkey, grpName))
 
 
-    elif(processed_input[0] == "send"):
+    elif(processed_input[0] == "send" and processed_input[1]!="group"):
         recvUsername = processed_input[1]
         messageToServer = "send " +  recvUsername
         server.send(messageToServer.encode())
-        messageFromServer = server.recv(1024)
-        print("recv port : ", messageFromServer.decode())
+        messageFromServer = server.recv(1024).decode()
+        # print("recv port : ", messageFromServer.decode())
         message_split=messageFromServer.split()
         if(message_split[0]=="error"):
         	print(messageFromServer)
         	continue
-        print("username in p2p ",username)
-        text = "msg received from " + username
+        # print("username in p2p ",username)
+        text = "<" + username +"> "
 
         for i in range(2, len(processed_input)):
             text += " "+processed_input[i]
 
-        print ("msg to send : ", text)
+        # print ("msg to send : ", text)
 
 
         start_new_thread(connect_to_peer, (messageFromServer, text,ka, "p2p"))
@@ -526,7 +528,7 @@ while True:
         messageFromServer = server.recv(1024)
         print(messageFromServer.decode())
     else:
-    	print("noting")
+    	print("invalid command")
 
     # server.recv(1024)
     sys.stdout.flush()

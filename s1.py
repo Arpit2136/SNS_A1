@@ -46,7 +46,7 @@ def clientthread(conn, addr):
 			clients_username = ""
 
 		message = conn.recv(2048).decode()
-		print ("message from client : ", message)
+		# print ("message from client : ", message)
 		processed_input=message.split()
 
 		if(processed_input[0]=='signup'):
@@ -96,6 +96,7 @@ def clientthread(conn, addr):
 					if(member != clients_username):
 							msgtToClient += " "+str(client_ports_as_server[member])
 
+			print ("msg to client : ", msgtToClient)
 			conn.send(msgtToClient.encode())
 
 

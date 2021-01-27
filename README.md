@@ -24,18 +24,16 @@ User can list all the groups
 
 ##### 5)JOIN
 A user can join a specified group using this command 
-<join groupname>
+join groupname
 
-##### 6)SEND 
-A user can send a message or any other file that is to be shared to other 
-users present in network
 
-##### GROUP 
-send group groupname text<br/>
+###### group 
+
+send group groupname text
 send group groupname file filename
- 
-#####  P2P
-send username text<br/>
+
+###### p2p
+send username text
 send username file filename
  
 

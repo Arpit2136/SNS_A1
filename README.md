@@ -23,7 +23,7 @@ User can list all the groups
 <list>
 
 ##### 5)JOIN
-A user can join a specified group using this command 
+A user can join a specified group using this command <br/>
 join groupname
 
 

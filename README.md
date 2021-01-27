@@ -29,10 +29,12 @@ A user can join a specified group using this command
 ##### 6)SEND 
 A user can send a message or any other file that is to be shared to other 
 users present in network
-###### group 
+
+###### GROUP 
 <send group groupname text>
 <send group groupname file filename>
-###### p2p
+ 
+######  P2P
 send username text
 send username file filename
  

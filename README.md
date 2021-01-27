@@ -27,13 +27,13 @@ A user can join a specified group using this command
 join groupname
 
 
-##### GROUP 
+##### 6)GROUP 
 
-send group groupname text
+send group groupname text<br />
 send group groupname file filename
 
-##### P2P
-send username text
+##### 7)P2P
+send username text<br />
 send username file filename
  
  

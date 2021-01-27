@@ -29,11 +29,11 @@ join groupname
 
 ###### group 
 
-send group groupname text
+send group groupname text<br/>
 send group groupname file filename
 
 ###### p2p
-send username text
+send username text<br/>
 send username file filename
  
 

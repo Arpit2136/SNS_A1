@@ -31,11 +31,11 @@ A user can send a message or any other file that is to be shared to other
 users present in network
 
 ###### GROUP 
-<send group groupname text>
+<send group groupname text><br/>
 <send group groupname file filename>
  
 ######  P2P
-send username text
+send username text<br/>
 send username file filename
  
 

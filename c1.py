@@ -79,7 +79,7 @@ def clientthread(conn, addr):
         			data = conn.recv(1024)
         			data = cipher1.decrypt((data))
         			data = data
-        			print(data)
+        			# print(data)
         			if not data:
         				break
         			file.write(data)
